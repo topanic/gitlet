@@ -2,6 +2,7 @@ package instruction
 
 import (
 	"fmt"
+	"gitlet/config"
 	"gitlet/gitlet"
 	"log"
 	"os"
@@ -12,13 +13,13 @@ func Init_gitlet() {
 	if os.IsNotExist(err) {
 		// .getlet directory not exit
 		os.Mkdir(".gitlet", 0755)
-		os.MkdirAll(".gitlet/stage/addStage", 0755)
-		os.MkdirAll(".gitlet/stage/rmStage", 0755)
-		os.MkdirAll(".gitlet/objects/commits", 0755)
-		os.MkdirAll(".gitlet/objects/blobs", 0755)
-		os.MkdirAll(".gitlet/refs/heads", 0755)
-		os.MkdirAll(".gitlet/refs/remotes", 0755)
-		os.Create(".gitlet/HEAD")
+		os.MkdirAll(config.ADDSTAGE, 0755)
+		os.MkdirAll(config.RMSTAGE, 0755)
+		os.MkdirAll(config.COMMIT, 0755)
+		os.MkdirAll(config.BLOB, 0755)
+		os.MkdirAll(config.BRANCHES, 0755)
+		os.MkdirAll(config.REMOTES, 0755)
+		os.Create(config.HEAD)
 		fmt.Println("Gitlet init success.")
 	} else {
 		// .gitlet directory exist
@@ -40,5 +41,5 @@ func Add(filenames ...string) {
 }
 
 func Commit(message string) {
-	
+
 }

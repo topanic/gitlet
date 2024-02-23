@@ -2,7 +2,7 @@ package gitlet
 
 import (
 	"encoding/json"
-	"fmt"
+
 	"gitlet/config"
 	"gitlet/utils"
 	"log"
@@ -58,7 +58,7 @@ func (b *Blob) Persist() {
 		log.Fatal(err)
 	}
 
-	err = os.WriteFile(fmt.Sprintf(".gitlet/stage/addStage/%s", b.HashId), data, 0644)
+	err = os.WriteFile(config.ADDSTAGE + "/" + b.HashId, data, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
