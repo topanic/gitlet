@@ -12,24 +12,40 @@ import (
 
 type Commit struct {
 	Message string	`json:"message"`
-	Parent *Commit	`json:"parents"`
+	Parent []string	`json:"parents"`
 	CurrDate time.Time	`json:"currDate"`
 	HashId string	`json:"hashId"`
-	BlobIds []string	`json:"blobIds"`
+	BlobIds map[string]string	`json:"blobIds"`
 }
 
 func NewCommit(message string) *Commit {
 	blobs := GetStageBlog()
-	blobIds := make([]string, 20)
+	blobIds := make(map[string]string, 10)
 	for _, b := range blobs {
-		blobIds = append(blobIds, b.HashId)
+		// blobIds = append(blobIds, b.HashId)
+		if _, ok := blobIds[b.FilePath]; !ok {
+			blobIds[b.FilePath] = b.HashId
+		} else {
+			log.Fatalln("store same filepath, something get wrong")
+		}
 	}
 	return &Commit{
 		Message: message,
-		// TODO: parent
+		Parent: []string{GetHEAD()},
 		CurrDate: time.Now(),
 		HashId: utils.GenerateID(),
 		BlobIds: blobIds,
+	}
+}
+
+/* Init commit */
+func NewInitCommit() *Commit {
+	return &Commit{
+		Message: "Init Commit",
+		Parent: nil,
+		CurrDate: time.Now(),
+		HashId: utils.GenerateID(),
+		BlobIds: nil,
 	}
 }
 

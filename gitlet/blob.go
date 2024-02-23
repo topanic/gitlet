@@ -14,8 +14,8 @@ import (
 type Blob struct {
 	Filename string `json:"filename"`
 	FilePath string `json:"filepath"`
-	Contents []byte	`json:"contents"`
-	HashId string	`json:"hashId"`
+	Contents []byte `json:"contents"`
+	HashId   string `json:"hashId"`
 }
 
 
@@ -34,14 +34,14 @@ func GetStageBlog() []*Blob {
 	if err != nil {
 		log.Fatal(err)
 	}
-	blobs := make([]*Blob, 10)
+	blobs := make([]*Blob, 0, 10)
 	for _, file := range files {
 		filepath := config.ADDSTAGE + "/" + file.Name()
 		data, err := os.ReadFile(filepath)
 		if err != nil {
 			log.Fatal(err)
 		}
-		var b *Blob
+		b := &Blob{}
 		err = json.Unmarshal(data, b)
 		if err != nil {
 			log.Fatal(err)
@@ -51,6 +51,8 @@ func GetStageBlog() []*Blob {
 	// TODO: need rm rmstage file
 	return blobs
 }
+
+
 
 func (b *Blob) Persist() {
 	data, err := json.Marshal(b)

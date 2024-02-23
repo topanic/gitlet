@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gitlet/config"
 	"gitlet/gitlet"
+	"gitlet/utils"
 	"log"
 	"os"
 )
@@ -20,6 +21,21 @@ func Init_gitlet() {
 		os.MkdirAll(config.BRANCHES, 0755)
 		os.MkdirAll(config.REMOTES, 0755)
 		os.Create(config.HEAD)
+		os.Create(config.BRANCHES + "/master")
+		// write commitId into "refs/heads/master"
+		commit := gitlet.NewInitCommit()
+		err := os.WriteFile(config.BRANCHES + "/master", []byte(commit.HashId), 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// write "refs/heads/master" into HEAD
+		err = os.WriteFile(config.HEAD, []byte(config.BRANCHES + "/master"), 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		// write commit
+		commit.Persist()
+
 		fmt.Println("Gitlet init success.")
 	} else {
 		// .gitlet directory exist
@@ -41,5 +57,14 @@ func Add(filenames ...string) {
 }
 
 func Commit(message string) {
-
+	commit := gitlet.NewCommit(message)
+	// store this commit
+	commit.Persist()
+	// store blobs which contains in the commit blobs into "objects/blobs"
+	utils.MoveFiles(utils.ADDSTAGE, utils.BLOB)
+	// remove "addStage" file
+	utils.RemoveFiles(utils.ADDSTAGE)
+	// move HEAD
+	gitlet.MoveHEAD(commit.HashId)
+	fmt.Println("Commit succeed.")
 }
