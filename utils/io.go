@@ -112,6 +112,24 @@ func RemoveFiles(dest Where) {
     }
 }
 
+/* Remove target file */
+func RemoveFile(dest Where, filename string) {
+	destPath := GetWhere(dest)
+	files, err := os.ReadDir(destPath)
+	if err != nil {
+        log.Fatal(err)
+    }
+	for _, file := range files {
+		if file.Name() == filename {
+			filePath := filepath.Join(destPath, file.Name())
+			err := os.Remove(filePath)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+    }
+}
+
 /* Find a file in directory, return filepath */
 func FindFile(dir string, filename string) string {
 	files, err := os.ReadDir(dir)
@@ -145,4 +163,13 @@ func FileExists(filepath string) bool {
         }
     }
     return true
+}
+
+/* If there some files in dir */
+func DirHasFiles(dir string) bool {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return len(files) > 0
 }

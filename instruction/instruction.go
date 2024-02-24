@@ -1,12 +1,14 @@
 package instruction
 
 import (
+	"bytes"
 	"fmt"
 	"gitlet/config"
 	"gitlet/gitlet"
 	"gitlet/utils"
 	"log"
 	"os"
+	"strings"
 )
 
 func Init_gitlet() {
@@ -36,35 +38,66 @@ func Init_gitlet() {
 	}
 }
 
-func Add(filenames ...string) {
-	for _, filename := range filenames {
-		data := utils.ReadFile(filename)
-		blob := gitlet.NewBlob(filename, data)
-		// store the blob
-		blob.Persist()
-	}	
+func Add(filename string) {
+	data := utils.ReadFile(filename)
+	blob := gitlet.NewBlob(filename, data)
+	addBlobs := gitlet.GetStageBlob(utils.ADDSTAGE)
+	for _, b := range addBlobs {
+		if b.FilePath == blob.FilePath {
+			if bytes.Equal(b.Contents, blob.Contents) {
+				// same file
+				fmt.Println("add: file is already added.")
+				return
+			} else {
+				// changed file
+				utils.RemoveFile(utils.ADDSTAGE, b.HashId)
+				break
+			}
+		}
+	}
+	// store the blob
+	blob.Persist()
+	
 	fmt.Println("Adding files succeed.")
 }
 
-func Commit(message string) {
+func Commit(messages ...string) {
+	message := strings.Join(messages, " ")
+	// if some files exist in stage
+	if !utils.DirHasFiles(config.ADDSTAGE) && !utils.DirHasFiles(config.RMSTAGE) {
+		fmt.Println("Commit: Nothing to do.")
+		return
+	}
 	commit := gitlet.NewCommit(message)
-
 	// 1. copy Hashmap from HEAD
 	commitId := gitlet.GetHEAD()
 	oldCommit := gitlet.GetCommitById(commitId)
-	blobs := gitlet.GetStageBlob(utils.ADDSTAGE)
 	// Deep and shallow copies may not matter here, 
 	// because persistence will read information from the local file,
 	// and what is read out is still what was originally stored in the file.
 	blobIds := oldCommit.BlobIds
 
 	// 2. add blob into Hashmap from "addStage"
-	for _, b := range blobs {
-		// blobIds = append(blobIds, b.HashId)
-		if _, ok := blobIds[b.FilePath]; !ok {
-			blobIds[b.FilePath] = b.HashId
+	addBlobs := gitlet.GetStageBlob(utils.ADDSTAGE)
+	for _, addBlob := range addBlobs {
+		if blobID, ok := blobIds[addBlob.FilePath]; !ok {
+			blobIds[addBlob.FilePath] = addBlob.HashId
 		} else {
-			log.Fatalln("store same filepath, something get wrong")
+			// file exist in commit, compare the content,
+			// if content is same, remove it from "addStage"
+			// if content is not same, rewrite Hashmap.
+			objBlob := gitlet.GetBlobById(blobID, utils.BLOB)
+			if objBlob != nil {
+				if bytes.Equal(addBlob.Contents, objBlob.Contents) {
+					// content same
+					utils.RemoveFile(utils.ADDSTAGE, addBlob.HashId)
+				} else {
+					// content not same
+					blobIds[addBlob.FilePath] = addBlob.HashId
+				}
+			} else {
+				log.Fatalln("you should't arrive here, some thing get wrong.")
+			}
 		}
 	}
 
@@ -78,7 +111,7 @@ func Commit(message string) {
 	// 5. remove "rmStage" from Hashmap
 	rmBlobs := gitlet.GetStageBlob(utils.RMSTAGE) 
 	for _, rmblob := range rmBlobs {
-		delete(commit.BlobIds, rmblob.FilePath)
+		delete(blobIds, rmblob.FilePath)
 	}
 
 	// 6. remove "rmStage" file
@@ -118,12 +151,14 @@ func Rm(filename string) {
 				log.Fatal(err)
 			}
 			fmt.Println("rm file from commit and worktree.")
+			return
 		} else {
 			// 3. if file doesn't exit in worktree but is traced by commit, 
 			//    move it from "objects/blobs" to "rmStage".
 			utils.MoveFile(utils.BLOB, utils.RMSTAGE, blobId)
 			fmt.Println("rm file from commit.")
+			return
 		}
 	}
-	
+	fmt.Println("rm: Nothing to do.")
 }

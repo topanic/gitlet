@@ -54,19 +54,23 @@ func GetStageBlob(w utils.Where) []*Blob {
 }
 
 func GetBlobByFilename(filename string, w utils.Where) *Blob {
-	dirname := utils.GetWhere(w)
-	files := utils.ReadDir(dirname)
-	for _, file := range files {
-		if file.Name() == filename {
-			data := utils.ReadFile(filename)
-			b := &Blob{}
-			err := json.Unmarshal(data, b)
-			if err != nil {
-				log.Fatal(err)
-			}
-			return b
+	blobs := GetStageBlob(w)
+	for _, blob := range blobs {
+		if blob.FilePath == filename {
+			return blob
 		}
 	}
 	// can't find blob named "filename".
+	return nil
+}
+
+func GetBlobById(id string, w utils.Where) *Blob {
+	blobs := GetStageBlob(w)
+	for _, blob := range blobs {
+		if blob.HashId == id {
+			return blob
+		}
+	}
+	// can't find blob.
 	return nil
 }

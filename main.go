@@ -19,14 +19,14 @@ func main() {
 	case "init":
 		instruction.Init_gitlet()
 	case "add":
-		if utils.GetArgsNum(args) >= 2 {
-			instruction.Add(args[1:]...)
+		if utils.GetArgsNum(args) == 2 {
+			instruction.Add(args[1])
 		} else {
 			fmt.Println("add: You need input at least a file.")
 		}
 	case "commit":
-		if utils.GetArgsNum(args) == 2 {
-			instruction.Commit(args[1])
+		if utils.GetArgsNum(args) >= 2 {
+			instruction.Commit(args[1:]...)
 		} else {
 			fmt.Println("commit: Get wrong argument num.")
 		}
@@ -34,7 +34,7 @@ func main() {
 		if utils.GetArgsNum(args) == 2 {
 			instruction.Rm(args[1])
 		} else {
-			fmt.Println("commit: Get wrong argument num.")
+			fmt.Println("rm: Get wrong argument num.")
 		}
 
 
