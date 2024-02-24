@@ -37,10 +37,7 @@ func GetStageBlog() []*Blob {
 	blobs := make([]*Blob, 0, 10)
 	for _, file := range files {
 		filepath := config.ADDSTAGE + "/" + file.Name()
-		data, err := os.ReadFile(filepath)
-		if err != nil {
-			log.Fatal(err)
-		}
+		data := utils.ReadFile(filepath)
 		b := &Blob{}
 		err = json.Unmarshal(data, b)
 		if err != nil {
@@ -59,10 +56,6 @@ func (b *Blob) Persist() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	err = os.WriteFile(config.ADDSTAGE + "/" + b.HashId, data, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
+	utils.WriteFileBytes(config.ADDSTAGE + "/" + b.HashId, data)
 }
 

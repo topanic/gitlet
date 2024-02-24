@@ -5,7 +5,6 @@ import (
 	"gitlet/config"
 	"gitlet/utils"
 	"log"
-	"os"
 	"time"
 )
 
@@ -54,9 +53,5 @@ func (c *Commit) Persist() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	err = os.WriteFile(config.COMMIT + "/" + c.HashId, data, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
+	utils.WriteFileBytes(config.COMMIT + "/" + c.HashId, data)
 }

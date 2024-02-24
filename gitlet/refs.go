@@ -2,34 +2,21 @@ package gitlet
 
 import (
 	"gitlet/config"
-	"log"
-	"os"
+	"gitlet/utils"
 )
 
 /* Get commitId which HEAD point to. */
 func GetHEAD() string {
-	data, err := os.ReadFile(config.HEAD)
-	if err != nil {
-		log.Fatal(err)
-	}
+	data := utils.ReadFile(config.HEAD)
 	refs_branch := string(data)
-	blobId, err := os.ReadFile(refs_branch)
-	if err != nil {
-		log.Fatal(err)
-	}
+	blobId := utils.ReadFile(refs_branch)
 	return string(blobId)
 }
 
 /* Move HEAD point to. */
 func MoveHEAD(commitId string) {
-	data, err := os.ReadFile(config.HEAD)
-	if err != nil {
-		log.Fatal(err)
-	}
+	data := utils.ReadFile(config.HEAD)
 	refs_branch := string(data)
 	// blobId, err := os.ReadFile(refs_branch)
-	err = os.WriteFile(refs_branch, []byte(commitId), 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
+	utils.WriteFile(refs_branch, commitId)
 }

@@ -5,7 +5,6 @@ import (
 	"gitlet/config"
 	"gitlet/gitlet"
 	"gitlet/utils"
-	"log"
 	"os"
 )
 
@@ -24,18 +23,11 @@ func Init_gitlet() {
 		os.Create(config.BRANCHES + "/master")
 		// write commitId into "refs/heads/master"
 		commit := gitlet.NewInitCommit()
-		err := os.WriteFile(config.BRANCHES + "/master", []byte(commit.HashId), 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
+		utils.WriteFile(config.BRANCHES + "/master", commit.HashId)
 		// write "refs/heads/master" into HEAD
-		err = os.WriteFile(config.HEAD, []byte(config.BRANCHES + "/master"), 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
+		utils.WriteFile(config.HEAD, config.BRANCHES + "/master")
 		// write commit
 		commit.Persist()
-
 		fmt.Println("Gitlet init success.")
 	} else {
 		// .gitlet directory exist
@@ -45,10 +37,7 @@ func Init_gitlet() {
 
 func Add(filenames ...string) {
 	for _, filename := range filenames {
-		data, err := os.ReadFile(filename)
-		if err != nil {
-			log.Fatal(err)
-		}
+		data := utils.ReadFile(filename)
 		blob := gitlet.NewBlob(filename, data)
 		// store the blob
 		blob.Persist()
