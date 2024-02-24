@@ -18,22 +18,12 @@ type Commit struct {
 }
 
 func NewCommit(message string) *Commit {
-	blobs := GetStageBlog()
-	blobIds := make(map[string]string, 10)
-	for _, b := range blobs {
-		// blobIds = append(blobIds, b.HashId)
-		if _, ok := blobIds[b.FilePath]; !ok {
-			blobIds[b.FilePath] = b.HashId
-		} else {
-			log.Fatalln("store same filepath, something get wrong")
-		}
-	}
 	return &Commit{
 		Message: message,
 		Parent: []string{GetHEAD()},
 		CurrDate: time.Now(),
 		HashId: utils.GenerateID(),
-		BlobIds: blobIds,
+		BlobIds: nil,
 	}
 }
 
@@ -44,7 +34,7 @@ func NewInitCommit() *Commit {
 		Parent: nil,
 		CurrDate: time.Now(),
 		HashId: utils.GenerateID(),
-		BlobIds: nil,
+		BlobIds: make(map[string]string),
 	}
 }
 
@@ -54,4 +44,20 @@ func (c *Commit) Persist() {
 		log.Fatal(err)
 	}
 	utils.WriteFileBytes(config.COMMIT + "/" + c.HashId, data)
+}
+
+
+/* Get commit entity by commitId */
+func GetCommitById(id string) *Commit {
+	commit := &Commit{}
+	filepath := utils.FindFile(config.COMMIT, id)
+	if filepath == "" {
+		log.Fatalln("can't find file, something get wrong.")
+	}
+	data := utils.ReadFile(filepath)
+	err := json.Unmarshal(data, commit)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return commit
 }

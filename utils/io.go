@@ -2,15 +2,16 @@ package utils
 
 import (
 	"gitlet/config"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
 )
 
-type where int
+type Where int
 
 const (
-	BLOB where = iota
+	BLOB Where = iota
 	ADDSTAGE
 	RMSTAGE
 )
@@ -37,10 +38,23 @@ func ReadFile(filename string) []byte {
 	return data
 }
 
+func GetWhere(w Where) string {
+	switch w {
+	case BLOB:
+		return config.BLOB
+	case ADDSTAGE:
+		return config.ADDSTAGE
+	case RMSTAGE:
+		return config.RMSTAGE
+	default:
+		return ""
+	}
+}
+
 /* Move files from source to dest. */
-func MoveFiles(source where, dest where) {
-	sourcePath := getWhere(source)
-	destPath := getWhere(dest)
+func MoveFiles(source Where, dest Where) {
+	sourcePath := GetWhere(source)
+	destPath := GetWhere(dest)
 
 	files, err := os.ReadDir(sourcePath)
     if err != nil {
@@ -58,22 +72,32 @@ func MoveFiles(source where, dest where) {
     }
 }
 
-func getWhere(w where) string {
-	switch w {
-	case BLOB:
-		return config.BLOB
-	case ADDSTAGE:
-		return config.ADDSTAGE
-	case RMSTAGE:
-		return config.RMSTAGE
-	default:
-		return ""
-	}
+/* Move target file in source to dest. */
+func MoveFile(source Where, dest Where, filename string) {
+	sourcePath := GetWhere(source)
+	destPath := GetWhere(dest)
+
+	files, err := os.ReadDir(sourcePath)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+	for _, file := range files {
+		if file.Name() == filename {
+			oldPath := filepath.Join(sourcePath, file.Name())
+			newPath := filepath.Join(destPath, file.Name())
+	
+			err := os.Rename(oldPath, newPath)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+    }
 }
 
 /* Remove all file in dest. */
-func RemoveFiles(dest where) {
-	destPath := getWhere(dest)
+func RemoveFiles(dest Where) {
+	destPath := GetWhere(dest)
 	files, err := os.ReadDir(destPath)
     if err != nil {
         log.Fatal(err)
@@ -86,4 +110,39 @@ func RemoveFiles(dest where) {
             log.Fatal(err)
         }
     }
+}
+
+/* Find a file in directory, return filepath */
+func FindFile(dir string, filename string) string {
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+        if file.Name() == filename {
+            return filepath.Join(dir, file.Name())
+        }
+    }
+	return ""
+}
+
+/* Read dir */
+func ReadDir(dirname string) []fs.DirEntry {
+	files, err := os.ReadDir(dirname)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return files
+}
+
+/* If filename exist in dir */
+func FileExists(filepath string) bool {
+    _, err := os.Stat(filepath)
+    if err != nil {
+        if os.IsNotExist(err) {
+            return false
+        }
+    }
+    return true
 }

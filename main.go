@@ -30,6 +30,12 @@ func main() {
 		} else {
 			fmt.Println("commit: Get wrong argument num.")
 		}
+	case "rm":
+		if utils.GetArgsNum(args) == 2 {
+			instruction.Rm(args[1])
+		} else {
+			fmt.Println("commit: Get wrong argument num.")
+		}
 
 
 
