@@ -36,6 +36,12 @@ func main() {
 		} else {
 			fmt.Println("rm: Get wrong argument num.")
 		}
+	case "log":
+		if utils.GetArgsNum(args) == 1 {
+			instruction.Log()
+		} else {
+			fmt.Println("log: Get wrong argument num.")
+		}
 
 
 

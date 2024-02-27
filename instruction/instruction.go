@@ -162,3 +162,19 @@ func Rm(filename string) {
 	}
 	fmt.Println("rm: Nothing to do.")
 }
+
+
+func Log() {
+	commitIdLast := gitlet.GetHEAD()
+	logHelper(commitIdLast)
+}
+
+func logHelper(commitId string) {
+	commit := gitlet.GetCommitById(commitId)
+	fmt.Printf("* %s %s\n", utils.Colorize(commit.HashId[0:7], utils.FgMagenta),
+		utils.Colorize(commit.Message, utils.FgCyan))
+	if commit.Parent != nil {
+		logHelper(commit.Parent[0])
+	}
+}
+
