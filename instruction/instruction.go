@@ -186,3 +186,13 @@ func GlobalLog() {
 		fmt.Println(utils.Colorize(item.Name()[:7], utils.FgMagenta))
 	}
 }
+
+
+func Find(commitMessage ...string) {
+	commits := gitlet.GetAllCommits()
+	for _, commit := range commits {
+		if commit.Message == strings.Join(commitMessage, " ") {
+			fmt.Println(utils.Colorize(commit.HashId[:7], utils.FgMagenta))
+		}
+	}
+}

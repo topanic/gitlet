@@ -61,3 +61,20 @@ func GetCommitById(id string) *Commit {
 	}
 	return commit
 }
+
+/* Get all commits */
+func GetAllCommits() []*Commit {
+	commits := make([]*Commit, 0)
+	dirs := utils.ReadDir(config.COMMIT)
+	for _, item := range dirs {
+		filePath := config.COMMIT + "/" + item.Name()
+		data := utils.ReadFile(filePath)
+		commit := &Commit{}
+		err := json.Unmarshal(data, commit)
+		if err != nil {
+			log.Fatal(err)
+		}
+		commits = append(commits, commit)
+	} 
+	return commits
+}

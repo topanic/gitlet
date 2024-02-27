@@ -48,6 +48,11 @@ func main() {
 		} else {
 			fmt.Println("log: Get wrong argument num.")
 		}
+	case "find":
+		if utils.GetArgsNum(args) >= 2 {
+			instruction.Find(args[1:]...)
+		}
+
 
 
 
