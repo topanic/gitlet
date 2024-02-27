@@ -178,3 +178,11 @@ func logHelper(commitId string) {
 	}
 }
 
+
+func GlobalLog() {
+	dirs := utils.ReadDir(config.COMMIT)
+	for _, item := range dirs {
+		fmt.Printf("* ")
+		fmt.Println(utils.Colorize(item.Name()[:7], utils.FgMagenta))
+	}
+}
