@@ -163,7 +163,6 @@ func Rm(filename string) {
 	fmt.Println("rm: Nothing to do.")
 }
 
-
 func Log() {
 	commitIdLast := gitlet.GetHEAD()
 	logHelper(commitIdLast)
@@ -178,7 +177,6 @@ func logHelper(commitId string) {
 	}
 }
 
-
 func GlobalLog() {
 	dirs := utils.ReadDir(config.COMMIT)
 	for _, item := range dirs {
@@ -187,7 +185,6 @@ func GlobalLog() {
 	}
 }
 
-
 func Find(commitMessage ...string) {
 	commits := gitlet.GetAllCommits()
 	for _, commit := range commits {
@@ -195,4 +192,34 @@ func Find(commitMessage ...string) {
 			fmt.Println(utils.Colorize(commit.HashId[:7], utils.FgMagenta))
 		}
 	}
+}
+
+func Status() {
+	fmt.Printf("=== Branches ===\n")
+	HEADBranch := gitlet.GetHEADBranch()
+	branches := utils.ReadDir(config.BRANCHES)
+	fmt.Printf("*%s\n", HEADBranch)
+	for _, branch := range branches {
+		if name := branch.Name(); name != HEADBranch {
+			fmt.Printf("*%s\n", name)
+		}
+	}
+
+	fmt.Printf("=== Staged Files ===\n")
+	stages := gitlet.GetStageBlob(utils.ADDSTAGE)
+	for _, stage := range stages {
+		fmt.Println(stage.Filename)
+	}
+
+	fmt.Printf("=== Removed Files ===\n")
+	stages = gitlet.GetStageBlob(utils.RMSTAGE)
+	for _, stage := range stages {
+		fmt.Println(stage.Filename)
+	}
+
+	// fmt.Printf("=== Modifications Not Staged For Commit ===\n")
+	// TODO
+
+	// fmt.Printf("=== Untracked Files ===\n")
+	// TODO
 }
