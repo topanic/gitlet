@@ -78,6 +78,12 @@ func main() {
 		} else {
 			fmt.Println("rm-branch: Get wrong argument num.")
 		}
+	case "reset":
+		if utils.GetArgsNum(args) == 2 {
+			instruction.Reset(args[1])
+		} else {
+			fmt.Println("reset: Get wrong argument num.")
+		}
 
 
 

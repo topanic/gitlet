@@ -308,3 +308,24 @@ func RmBranch(targetBranchName string) {
 		fmt.Println("rm-branch: Remove success.")
 	}
 }
+
+func Reset(cId string) {
+	// remove files of old branch
+	commitId := gitlet.GetHEAD()
+	commit := gitlet.GetCommitById(commitId)
+	for _, blobId := range commit.BlobIds {
+		blob := gitlet.GetBlobById(blobId, utils.BLOB)
+		utils.RemoveFileByPath(blob.FilePath)
+	}
+
+	// add file into worktree
+	gitlet.MoveBranchPoint(cId)
+	commitId = gitlet.GetHEAD()
+	commit = gitlet.GetCommitById(commitId)
+	for _, blobId := range commit.BlobIds {
+		blob := gitlet.GetBlobById(blobId, utils.BLOB)
+		utils.WriteFileBytes(blob.FilePath, blob.Contents)
+	}
+
+	fmt.Printf("reset: HEAD at %s.\n", cId[:7])
+}
