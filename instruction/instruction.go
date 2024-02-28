@@ -287,3 +287,9 @@ func switchBranch(branchName string) {
 
 	fmt.Printf("checkout: switch to %s.\n", newBranch)
 }
+
+func Branch(newBranchName string) {
+	commitId := gitlet.GetHEAD()
+	utils.WriteFile(config.BRANCHES + "/" + newBranchName, commitId)
+	fmt.Printf("branch: Create Branch(%s).\n", newBranchName)
+}

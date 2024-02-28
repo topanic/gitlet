@@ -66,6 +66,12 @@ func main() {
 		} else {
 			fmt.Println("checkout: Get wrong argument num.")
 		}
+	case "branch":
+		if utils.GetArgsNum(args) == 2 {
+			instruction.Branch(args[1])
+		} else {
+			fmt.Println("branch: Get wrong argument num.")
+		}
 
 
 
