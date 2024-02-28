@@ -289,7 +289,22 @@ func switchBranch(branchName string) {
 }
 
 func Branch(newBranchName string) {
+	// this instruction don't change branch, just create a new branch,
+	// change operation is decided by 'checkout' instruction.
 	commitId := gitlet.GetHEAD()
 	utils.WriteFile(config.BRANCHES + "/" + newBranchName, commitId)
 	fmt.Printf("branch: Create Branch(%s).\n", newBranchName)
+}
+
+func RmBranch(targetBranchName string) {
+	HEADBranch := gitlet.GetHEADBranch()
+	if targetBranchName == HEADBranch {
+		fmt.Println("rm-branch: You can't delete the current.")
+	} else if !gitlet.BranchExist(targetBranchName) {
+		fmt.Println("rm-branch: Target branch not exist.")
+	} else {
+		// branch exist
+		utils.RemoveFileByPath(config.BRANCHES + "/" + targetBranchName)
+		fmt.Println("rm-branch: Remove success.")
+	}
 }

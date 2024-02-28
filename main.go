@@ -72,6 +72,12 @@ func main() {
 		} else {
 			fmt.Println("branch: Get wrong argument num.")
 		}
+	case "rm-branch":
+		if utils.GetArgsNum(args) == 2 {
+			instruction.RmBranch(args[1])
+		} else {
+			fmt.Println("rm-branch: Get wrong argument num.")
+		}
 
 
 
