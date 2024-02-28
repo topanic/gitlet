@@ -122,7 +122,7 @@ func Commit(messages ...string) {
 	commit.BlobIds = blobIds
 	commit.Persist()
 	// move HEAD
-	gitlet.MoveHEAD(commit.HashId)
+	gitlet.MoveBranchPoint(commit.HashId)
 	fmt.Println("Commit succeed.")
 }
 
@@ -222,4 +222,68 @@ func Status() {
 
 	// fmt.Printf("=== Untracked Files ===\n")
 	// TODO
+}
+
+
+func Checkout(args ...string) {
+	NumArgs := len(args)
+	if NumArgs == 2 {
+		// 1. get removed file back from last commit
+		if args[0] == "-" {
+			checkoutFile(gitlet.GetHEAD(), args[1])
+		} else {
+			fmt.Println("checkout: Wrong argument.")
+		}
+	} else if NumArgs == 3 {
+		// 2. same as 1, get file back from commitID commit
+		if args[1] == "-" {
+			checkoutFile(args[0], args[2])
+		} else {
+			fmt.Println("checkout: Wrong argument.")
+		}
+	} else if NumArgs == 1 {
+		// 3. switch branch
+		switchBranch(args[0])
+	} else {
+		fmt.Println("checkout: Get wrong argument num.")
+	}
+}
+
+func checkoutFile(commitId string, filename string) {
+	commit := gitlet.GetCommitById(commitId)
+	if blobId, ok := commit.BlobIds[filename]; ok {
+		blob := gitlet.GetBlobById(blobId, utils.BLOB)
+		utils.WriteFileBytes(blob.FilePath, blob.Contents)
+		fmt.Println("checkout: Get file in Worktree.")
+	} else {
+		fmt.Println("checkout: Can't find target file in last commit.")
+	}
+}
+
+func switchBranch(branchName string) {
+	oldBranch := gitlet.GetHEADBranch()
+	newBranch := branchName
+	if !gitlet.BranchExist(oldBranch) {
+		fmt.Println("checkout: Branch not exist.")
+		return
+	}
+	
+	// remove files of old branch
+	commitId := gitlet.GetHEAD()
+	commit := gitlet.GetCommitById(commitId)
+	for _, blobId := range commit.BlobIds {
+		blob := gitlet.GetBlobById(blobId, utils.BLOB)
+		utils.RemoveFileByPath(blob.FilePath)
+	}
+	
+	// add file into worktree
+	gitlet.MoveHEAD(newBranch)
+	commitId = gitlet.GetHEAD()
+	commit = gitlet.GetCommitById(commitId)
+	for _, blobId := range commit.BlobIds {
+		blob := gitlet.GetBlobById(blobId, utils.BLOB)
+		utils.WriteFileBytes(blob.FilePath, blob.Contents)
+	}
+
+	fmt.Printf("checkout: switch to %s.\n", newBranch)
 }

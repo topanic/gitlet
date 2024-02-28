@@ -9,4 +9,6 @@ const (
 	REMOTES string = ".gitlet/refs/remotes"
 	HEAD string = ".gitlet/HEAD"
 
+	// for test
+	// WORKTREE string = "test"
 )

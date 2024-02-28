@@ -21,10 +21,20 @@ func GetHEADBranch() string {
 	return filepath.Base(refs_branch)
 }
 
-/* Move HEAD point to. */
-func MoveHEAD(commitId string) {
+/* Change HEAD point to */
+func MoveHEAD(branchName string) {
+	branchPath := config.BRANCHES + "/" + branchName
+	utils.WriteFile(config.HEAD, branchPath)
+}
+
+/* Move Branch point to. */
+func MoveBranchPoint(commitId string) {
 	data := utils.ReadFile(config.HEAD)
 	refs_branch := string(data)
 	// blobId, err := os.ReadFile(refs_branch)
 	utils.WriteFile(refs_branch, commitId)
+}
+
+func BranchExist(branchName string) bool {
+	return utils.FileExists(config.BRANCHES + "/" + branchName)
 }

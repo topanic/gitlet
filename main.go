@@ -51,8 +51,21 @@ func main() {
 	case "find":
 		if utils.GetArgsNum(args) >= 2 {
 			instruction.Find(args[1:]...)
+		} else {
+			fmt.Println("find: Get wrong argument num.")
 		}
-
+	case "status":
+		if utils.GetArgsNum(args) == 1 {
+			instruction.Status()
+		} else {
+			fmt.Println("status: Get wrong argument num.")
+		}
+	case "checkout":
+		if utils.GetArgsNum(args) >= 2 {
+			instruction.Checkout(args[1:]...)
+		} else {
+			fmt.Println("checkout: Get wrong argument num.")
+		}
 
 
 

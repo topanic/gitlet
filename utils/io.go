@@ -14,10 +14,11 @@ const (
 	BLOB Where = iota
 	ADDSTAGE
 	RMSTAGE
+	// WORK
 )
 
-func WriteFile(filename string, data string) {
-	err := os.WriteFile(filename, []byte(data), 0644)
+func WriteFile(filePath string, data string) {
+	err := os.WriteFile(filePath, []byte(data), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,6 +47,8 @@ func GetWhere(w Where) string {
 		return config.ADDSTAGE
 	case RMSTAGE:
 		return config.RMSTAGE
+	// case WORK:
+	// 	return config.WORKTREE
 	default:
 		return ""
 	}
@@ -128,6 +131,13 @@ func RemoveFile(dest Where, filename string) {
 			}
 		}
     }
+}
+
+func RemoveFileByPath(filePath string) {
+	err := os.Remove(filePath)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 /* Find a file in directory, return filepath */
