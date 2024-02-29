@@ -84,9 +84,12 @@ func main() {
 		} else {
 			fmt.Println("reset: Get wrong argument num.")
 		}
-
-
-
+	case "merge":
+		if utils.GetArgsNum(args) == 2 {
+			instruction.Merge(args[1])
+		} else {
+			fmt.Println("merge: Get wrong argument num.")
+		}
 	default:
 		fmt.Println("Please input a valid instruction.")
 		return

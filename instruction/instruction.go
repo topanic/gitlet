@@ -227,7 +227,7 @@ func Status() {
 
 func Checkout(args ...string) {
 	NumArgs := len(args)
-	if NumArgs == 2 {
+	if NumArgs == 2 {// TODO
 		// 1. get removed file back from last commit
 		if args[0] == "-" {
 			checkoutFile(gitlet.GetHEAD(), args[1])
@@ -328,4 +328,51 @@ func Reset(cId string) {
 	}
 
 	fmt.Printf("reset: HEAD at %s.\n", cId[:7])
+}
+
+
+func Merge(targetBranchName string) {
+	getSplitPoint(gitlet.GetHEADBranch(), targetBranchName)
+	// TODO: 未完成弃坑
+}
+
+func getSplitPoint(branch1, branch2 string) string {
+	// BFS find split point
+	branch1 = config.BRANCHES + "/" + branch1
+	branch2 = config.BRANCHES + "/" + branch2
+	commitId1 := string(utils.ReadFile(branch1))
+	commitId2 := string(utils.ReadFile(branch2))
+	map1 := make(map[string]int, 0)
+	map2 := make(map[string]int, 0)
+	getMapHelper(map1, 1, commitId1)
+	getMapHelper(map2, 1, commitId2)
+	
+	miniValue := 0
+	miniKey := ""
+	for key, value := range map1 {
+		if map2Value, ok := map2[key]; ok {
+			// also exist in map2
+			if miniKey == "" && miniValue == 0 {
+				miniKey = key
+				miniValue = map2Value
+			}
+			if miniValue > map2Value {
+				miniValue = value
+				miniKey = key
+			}
+		}
+	}
+
+	return miniKey
+}
+
+func getMapHelper(m map[string]int, deep int, commitId string) {
+	commit := gitlet.GetCommitById(commitId)
+	if commit.Parent == nil {
+		return
+	}
+	m[commitId] = deep
+	for _, p := range commit.Parent {
+		getMapHelper(m, deep + 1, p)
+	}
 }
